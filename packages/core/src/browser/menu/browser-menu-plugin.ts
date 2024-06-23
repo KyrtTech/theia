@@ -274,7 +274,7 @@ export class DynamicMenuWidget extends MenuWidget {
         };
         this.aboutToClose.connect(cb);
         this.preserveFocusedElement();
-        super.open(x, y, options, anchor);
+        super.open(x, y, options);
     }
 
     protected updateSubMenus(parent: MenuWidget, menu: CompoundMenuNode, commands: MenuCommandRegistry): void {
