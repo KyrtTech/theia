@@ -2,6 +2,13 @@
     "files.autoSave": "afterDelay",
     "workbench.editor.closeOnFileDelete": true,
     "git.autoRepositoryDetection": true,
-    "git.openRepositoryInParentFolders": "always"
+    "git.openRepositoryInParentFolders": "always",
+    "toolbar.showToolbar": false,
+    "window.menuBarVisibility": "hidden",
+    "python.showStartPage": false,
+    "window.restoreWindows": "folders",
+    "workbench.startupEditor": "none",
+    "workspace.preserveWindow": true,
+    "workbench.colorTheme": "dark",
+    "breadcrumbs.enabled": false
 }
-
