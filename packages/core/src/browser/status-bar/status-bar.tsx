@@ -49,8 +49,8 @@ export class StatusBarImpl extends ReactWidget implements StatusBar {
         // Hide the status bar until the `workbench.statusBar.visible` preference returns with a `true` value.
         this.hide();
         this.preferences.ready.then(() => {
-            const preferenceValue = this.preferences.get<boolean>('workbench.statusBar.visible', true);
-            this.setHidden(!preferenceValue);
+            //const preferenceValue = this.preferences.get<boolean>('workbench.statusBar.visible', true);
+            //this.setHidden(!preferenceValue);
         });
         this.toDispose.push(
             this.preferences.onPreferenceChanged(preference => {
