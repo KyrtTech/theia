@@ -19,7 +19,8 @@ import { CommandContribution, CommandRegistry, MenuContribution, MenuModelRegist
 import { isOSX, environment } from '@theia/core';
 import {
     open, OpenerService, CommonMenus, KeybindingRegistry, KeybindingContribution,
-    FrontendApplicationContribution, SHELL_TABBAR_CONTEXT_COPY, OnWillStopAction, Navigatable, SaveableSource, Widget
+    FrontendApplicationContribution, SHELL_TABBAR_CONTEXT_COPY, OnWillStopAction, Navigatable, SaveableSource, Widget,
+    FrontendApplication
 } from '@theia/core/lib/browser';
 import { FileDialogService, OpenFileDialogProps, FileDialogTreeFilters } from '@theia/filesystem/lib/browser';
 import { ContextKeyService } from '@theia/core/lib/browser/context-key-service';
@@ -39,6 +40,8 @@ import { FileStat } from '@theia/filesystem/lib/common/files';
 import { UntitledWorkspaceExitDialog } from './untitled-workspace-exit-dialog';
 import { FilesystemSaveResourceService } from '@theia/filesystem/lib/browser/filesystem-save-resource-service';
 import { StopReason } from '@theia/core/lib/common/frontend-application-state';
+import { EditorManager } from '@theia/editor/lib/browser';
+import { ApplicationShell } from '@theia/core/lib/browser/shell/application-shell';
 
 export enum WorkspaceStates {
     /**
@@ -74,6 +77,9 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
     @inject(PreferenceConfigurations) protected readonly preferenceConfigurations: PreferenceConfigurations;
     @inject(FilesystemSaveResourceService) protected readonly saveService: FilesystemSaveResourceService;
     @inject(WorkspaceFileService) protected readonly workspaceFileService: WorkspaceFileService;
+    @inject(EditorManager) protected readonly editorManager: EditorManager;
+    @inject(ApplicationShell) protected readonly shell: ApplicationShell;
+
 
     configure(): void {
         const workspaceExtensions = this.workspaceFileService.getWorkspaceFileExtensions();
@@ -453,6 +459,34 @@ export class WorkspaceFrontendContribution implements CommandContribution, Keybi
 
     canBeSavedAs(widget: Widget | undefined): widget is Widget & SaveableSource & Navigatable {
         return this.saveService.canSaveAs(widget);
+    }
+
+    async onStart(app: FrontendApplication): Promise<void> {
+        // Wait for the workspace to be fully loaded
+        this.workspaceService.onWorkspaceChanged(async () => {
+            await this.openFilesFromWorkspace();
+        });
+
+        // In case the workspace is already loaded
+        if (this.workspaceService.workspace) {
+            await this.openFilesFromWorkspace();
+        }
+    }
+
+    protected async openFilesFromWorkspace() {
+        const workspaceData = this.workspaceService.workspace?.resource;
+
+        if (workspaceData) {
+            const response = await this.fileService.readFile(workspaceData);
+            const workspaceJson = await JSON.parse(response.value.toString());;
+
+            if (workspaceJson.openFiles) {
+                for (const filePath of workspaceJson.openFiles) {
+                    const fileUri = new URI(filePath);
+                    await this.editorManager.open(fileUri);
+                }
+            }
+        }
     }
 
     async saveAs(widget: Widget & SaveableSource & Navigatable): Promise<void> {
