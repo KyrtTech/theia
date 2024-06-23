@@ -15,7 +15,7 @@
 // *****************************************************************************
 
 import { injectable, inject } from 'inversify';
-import { find, map, toArray, some } from '@phosphor/algorithm';
+import { find, some } from '@phosphor/algorithm';
 import { TabBar, Widget, DockPanel, Title, Panel, BoxPanel, BoxLayout, SplitPanel, PanelLayout } from '@phosphor/widgets';
 import { MimeData } from '@phosphor/coreutils';
 import { Drag } from '@phosphor/dragdrop';
@@ -287,15 +287,15 @@ export class SidePanelHandler {
      */
     getLayoutData(): SidePanel.LayoutData {
         const currentTitle = this.tabBar.currentTitle;
-        const items = toArray(map(this.tabBar.titles, title => <SidePanel.WidgetItem>{
+        /*const items = toArray(map(this.tabBar.titles, title => <SidePanel.WidgetItem>{
             widget: title.owner,
             rank: SidePanelHandler.rankProperty.get(title.owner),
             expanded: title === currentTitle,
             pinned: title.className.includes(PINNED_CLASS)
-        }));
+        }));*/
         // eslint-disable-next-line no-null/no-null
         const size = currentTitle !== null ? this.getPanelSize() : this.state.lastPanelSize;
-        return { type: 'sidepanel', items, size };
+        return { type: 'sidepanel', items: [], size };
     }
 
     /**
